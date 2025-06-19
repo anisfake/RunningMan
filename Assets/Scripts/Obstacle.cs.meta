@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: ccc0f94f826b5684f8eadde976404abd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - tilemap: {instanceID: 0}
+  - dangerTile: {fileID: 11400000, guid: 1750907c71ebeac4b851aaaad6deefe5, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
