@@ -75,7 +75,7 @@ public class LoopingGround : MonoBehaviour
         }
 
         int rand = Random.Range(0, groundPrefabs.Length);
-        GameObject newGround = Instantiate(groundPrefabs[rand]);
+        GameObject newGround = Instantiate(groundPrefabs[2]);
 
         float currentRightEdge = GetRightEdge(new GameObject[] { gameObject });
         float newGroundLeftEdge = GetLeftEdge(newGround);

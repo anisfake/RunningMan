@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static PlayerSkillController;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -11,13 +12,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scoreText;
     private float score = 0;
     [SerializeField] private GameObject scoreTextObject;
-    [SerializeField] private GameObject gameStartMess;
     [SerializeField] private GameObject gameOverMess;
 
-    private int coin = 0;
+    private int currentCoin = 0;
     [SerializeField] private TextMeshProUGUI coinText;
     [SerializeField] private GameObject coinTextObject;
     private bool isGameOver = false;
+    [SerializeField] private GameObject player;
     private void Awake()
     {
         if (instance == null)
@@ -31,10 +32,18 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        StartGame();
+        currentCoin = 0;
         UpdateCoin();
+        PlayerSkillController player = FindFirstObjectByType<PlayerSkillController>();
+        if (player != null)
+        {
+            player.skill = SkillType.Magnet;
+        }
+        else
+        {
+            Debug.LogWarning("not find!");
+        }
     }
-
 
     void Update()
     {
@@ -55,44 +64,50 @@ public class GameManager : MonoBehaviour
         score += Time.deltaTime * 10;
         scoreText.text = "Score:" + Mathf.FloorToInt(score);
     }
-    private void StartGame()
+    public void HandleStartGame()
     {
-        Time.timeScale = 0;
-        scoreTextObject.SetActive(false);
-        coinTextObject.SetActive(false);
-        gameStartMess.SetActive(true);
+        Time.timeScale = 1;
+        scoreTextObject.SetActive(true);
+        coinTextObject.SetActive(true);
         gameOverMess.SetActive(false);
-    }
-    private void HandleStartGame()
-    {
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            Time.timeScale = 1;
-            scoreTextObject.SetActive(true);
-            coinTextObject.SetActive(true);
-            gameStartMess.SetActive(false);
-        }
+
     }
 
     public void AddCoin(int coins)
     {
-        coin += coins;
+        currentCoin += coins;
         UpdateCoin();
     }
     private void UpdateCoin()
     {
-        coinText.text = "Coin:" + coin.ToString();
+        coinText.text = "Coin:" + currentCoin.ToString();
     }
     public void GameOver()
     {
+        if (isGameOver) return;
         isGameOver = true;
+
+        Debug.Log("GameOver - currentCoin: " + currentCoin);
+
         gameOverMess.SetActive(true);
         Time.timeScale = 0;
         StartCoroutine(ReLoadScene());
+
+        int totalCoin = PlayerPrefs.GetInt("Gold", 0);
+        totalCoin += currentCoin;
+        PlayerPrefs.SetInt("Gold", totalCoin);
+
+        float oldHighScore = PlayerPrefs.GetFloat("HighScore", 0);
+        if (score > oldHighScore)
+        {
+            PlayerPrefs.SetFloat("HighScore", score);
+        }
+
+        PlayerPrefs.Save();
     }
     private IEnumerator ReLoadScene()
     {
-        yield return new WaitForSecondsRealtime(1f);
+        yield return new WaitForSecondsRealtime(10f);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     public void QuitGame()

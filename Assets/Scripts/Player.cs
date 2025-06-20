@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public class Player : MonoBehaviour
 {
@@ -19,10 +18,9 @@ public class Player : MonoBehaviour
     [SerializeField]
     private CapsuleCollider2D capsuleCollider;
 
+
     private int jumpCount = 0;
     private int maxJumpCount = 2;
-
-
 
 
     void Start()
@@ -111,6 +109,7 @@ public class Player : MonoBehaviour
         if (collision.CompareTag("Obstacle"))
         {
             AudioManager.instance.PlayHurtClip();
+
         }
 
 
