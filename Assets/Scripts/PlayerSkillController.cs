@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerSkillController : MonoBehaviour
 {
-    public SkillType skill = SkillType.None;
+    public SkillType skill;
     [SerializeField] private float magnetRange = 3f;
     [SerializeField] private float magnetSpeed = 5f;
 
@@ -16,21 +16,41 @@ public class PlayerSkillController : MonoBehaviour
     private bool isCooldown = false;
     private float skillTimer = 0f;
     private float cooldownTimer = 0f;
+    public bool isShieldOn = false;
+    public bool isCoinBoost = false;
 
     void Update()
     {
-        skillStatusText.text = "Tap F to use";
-        if (Input.GetKeyDown(KeyCode.F) && skill == SkillType.Magnet && !isSkillActive && !isCooldown)
+        // 1. hien thi mac dinh
+        if (!isSkillActive && !isCooldown)
+        {
+            skillStatusText.text = "Tap F to use";
+        }
+
+        // 2. kich hoat bang nhan F
+        if (Input.GetKeyDown(KeyCode.F) && !isSkillActive && !isCooldown && skill != SkillType.None)
         {
             ActivateSkill();
         }
 
+        // 3. khi ky nang dang hoat dong
         if (isSkillActive)
         {
-            skillStatusText.text = "Magnet: " + Mathf.CeilToInt(skillTimer) + "s";
-
             skillTimer -= Time.deltaTime;
-            AttractCoins();
+            skillStatusText.text = skill.ToString() + ": " + Mathf.CeilToInt(skillTimer) + "s";
+
+            switch (skill)
+            {
+                case SkillType.Magnet:
+                    AttractCoins();
+                    break;
+                case SkillType.Shield:
+                    ActivateShield();
+                    break;
+                case SkillType.CoinBoost:
+                    ActivateCoinBoost();
+                    break;
+            }
 
             if (skillTimer <= 0f)
             {
@@ -38,20 +58,21 @@ public class PlayerSkillController : MonoBehaviour
             }
         }
 
+        // 4. Khi cooldown
         if (isCooldown)
         {
-            skillStatusText.text = "Cooldown: " + Mathf.CeilToInt(cooldownTimer) + "s";
-
             cooldownTimer -= Time.deltaTime;
+            skillStatusText.text = "Cooldown: " + Mathf.CeilToInt(cooldownTimer) + "s";
 
             if (cooldownTimer <= 0f)
             {
-                skillStatusText.text = "Tap F to use";
                 isCooldown = false;
-                Debug.Log("san sang dung lai.");
+                skillStatusText.text = "Tap F to use";
+                Debug.Log("ky nang da san sang");
             }
         }
     }
+
 
     void ActivateSkill()
     {
@@ -61,9 +82,14 @@ public class PlayerSkillController : MonoBehaviour
         cooldownTimer = skillCooldownDuration;
         Debug.Log("thoi gian su dung la 10 giay");
     }
-    void DeactivateSkill()
+    public void DeactivateSkill()
     {
         isSkillActive = false;
+
+        if (skill == SkillType.Shield)
+        {
+            isShieldOn = false;
+        }
         Debug.Log("da het hieu luc");
     }
 
@@ -80,7 +106,14 @@ public class PlayerSkillController : MonoBehaviour
             }
         }
     }
-
+    void ActivateShield()
+    {
+        isShieldOn = true;
+    }
+    void ActivateCoinBoost()
+    {
+        isCoinBoost = true;
+    }
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -91,7 +124,7 @@ public class PlayerSkillController : MonoBehaviour
         None,
         Magnet,
         Shield,
-        Dash,
+        CoinBoost
     }
 
 }

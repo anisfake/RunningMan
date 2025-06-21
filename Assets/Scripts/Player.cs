@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
 
     private int jumpCount = 0;
     private int maxJumpCount = 2;
-
+    private PlayerHealthController dmg;
 
     void Start()
     {
@@ -29,6 +29,8 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         boxCollider.enabled = true;
         capsuleCollider.enabled = false;
+
+        dmg = FindFirstObjectByType<PlayerHealthController>();
     }
 
     void Update()
@@ -106,10 +108,20 @@ public class Player : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        PlayerSkillController skillCtrl = GetComponent<PlayerSkillController>();
+
         if (collision.CompareTag("Obstacle"))
         {
             AudioManager.instance.PlayHurtClip();
 
+            if (skillCtrl != null && skillCtrl.skill == PlayerSkillController.SkillType.Shield && skillCtrl.isShieldOn)
+            {
+                Debug.Log("duoc khien bao ve");
+                skillCtrl.DeactivateSkill();
+                return;
+            }
+
+            dmg.TakeDamage(1);
         }
 
 
@@ -123,7 +135,17 @@ public class Player : MonoBehaviour
         {
             Destroy(collision.gameObject);
             Debug.Log("Bú bú ");
-            GameManager.instance.AddCoin(1);
+            if (skillCtrl != null && skillCtrl.skill == PlayerSkillController.SkillType.CoinBoost && skillCtrl.isCoinBoost)
+            {
+                GameManager.instance.AddCoin(2);
+                return;
+            }
+            else
+            {
+                GameManager.instance.AddCoin(1);
+                return;
+            }
+
         }
 
 

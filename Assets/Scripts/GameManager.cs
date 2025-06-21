@@ -13,12 +13,17 @@ public class GameManager : MonoBehaviour
     private float score = 0;
     [SerializeField] private GameObject scoreTextObject;
     [SerializeField] private GameObject gameOverMess;
+    [SerializeField] private GameObject backToMenuButton;
 
     private int currentCoin = 0;
     [SerializeField] private TextMeshProUGUI coinText;
     [SerializeField] private GameObject coinTextObject;
     private bool isGameOver = false;
     [SerializeField] private GameObject player;
+    [SerializeField] private GameObject skillSelectionPanel;
+    private bool hasShownSkillChoice = false;
+
+
     private void Awake()
     {
         if (instance == null)
@@ -37,7 +42,7 @@ public class GameManager : MonoBehaviour
         PlayerSkillController player = FindFirstObjectByType<PlayerSkillController>();
         if (player != null)
         {
-            player.skill = SkillType.Magnet;
+            player.skill = SkillType.Shield;
         }
         else
         {
@@ -63,6 +68,12 @@ public class GameManager : MonoBehaviour
     {
         score += Time.deltaTime * 10;
         scoreText.text = "Score:" + Mathf.FloorToInt(score);
+
+        if (!hasShownSkillChoice && score >= 50f)
+        {
+            hasShownSkillChoice = true;
+            ShowSkillSelection();
+        }
     }
     public void HandleStartGame()
     {
@@ -90,8 +101,9 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameOver - currentCoin: " + currentCoin);
 
         gameOverMess.SetActive(true);
+        backToMenuButton.SetActive(true);
         Time.timeScale = 0;
-        StartCoroutine(ReLoadScene());
+        //StartCoroutine(ReLoadScene());
 
         int totalCoin = PlayerPrefs.GetInt("Gold", 0);
         totalCoin += currentCoin;
@@ -105,10 +117,37 @@ public class GameManager : MonoBehaviour
 
         PlayerPrefs.Save();
     }
+    public void SelectSkill(PlayerSkillController.SkillType newSkill)
+    {
+        PlayerSkillController player = FindFirstObjectByType<PlayerSkillController>();
+
+        if (player != null)
+        {
+            player.skill = newSkill;
+            Debug.Log("new skill:" + newSkill);
+        }
+
+        skillSelectionPanel.SetActive(false);
+        Time.timeScale = 1;
+    }
+
+    public void SelectMagnetSkill() => SelectSkill(PlayerSkillController.SkillType.Magnet);
+    public void SelectShieldSkill() => SelectSkill(PlayerSkillController.SkillType.Shield);
+    public void SelectCoinBoostSkill() => SelectSkill(PlayerSkillController.SkillType.CoinBoost);
+    private void ShowSkillSelection()
+    {
+        Time.timeScale = 0;
+        skillSelectionPanel.SetActive(true);
+    }
+
     private IEnumerator ReLoadScene()
     {
         yield return new WaitForSecondsRealtime(10f);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    public void LoadMenuUIScene()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
     public void QuitGame()
     {
