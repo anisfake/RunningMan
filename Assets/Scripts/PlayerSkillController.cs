@@ -8,7 +8,7 @@ public class PlayerSkillController : MonoBehaviour
     [SerializeField] private float magnetSpeed = 5f;
 
     [SerializeField] private float skillActiveDuration = 10f; // thoi gian hieu luc
-    [SerializeField] private float skillCooldownDuration = 60f; // thoi gian hoi chieu
+    [SerializeField] private float skillCooldownDuration = 10f; // thoi gian hoi chieu
 
     [SerializeField] private TextMeshProUGUI skillStatusText;
 
@@ -18,6 +18,7 @@ public class PlayerSkillController : MonoBehaviour
     private float cooldownTimer = 0f;
     public bool isShieldOn = false;
     public bool isCoinBoost = false;
+    public bool isSlowTime = false;
 
     void Update()
     {
@@ -49,6 +50,9 @@ public class PlayerSkillController : MonoBehaviour
                     break;
                 case SkillType.CoinBoost:
                     ActivateCoinBoost();
+                    break;
+                case SkillType.SlowTime:
+                    ActivateSlowTime(10);
                     break;
             }
 
@@ -90,6 +94,14 @@ public class PlayerSkillController : MonoBehaviour
         {
             isShieldOn = false;
         }
+        else if (skill == SkillType.SlowTime)
+        {
+            GameManager.instance.ResetGameSpeed();
+        }
+        else if (skill == SkillType.CoinBoost)
+        {
+            isCoinBoost = false;
+        }
         Debug.Log("da het hieu luc");
     }
 
@@ -114,6 +126,10 @@ public class PlayerSkillController : MonoBehaviour
     {
         isCoinBoost = true;
     }
+    void ActivateSlowTime(float duration)
+    {
+        GameManager.instance.SlowDownGame();
+    }
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -124,7 +140,8 @@ public class PlayerSkillController : MonoBehaviour
         None,
         Magnet,
         Shield,
-        CoinBoost
+        CoinBoost,
+        SlowTime
     }
 
 }

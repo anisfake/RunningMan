@@ -6,7 +6,7 @@ using static PlayerSkillController;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    private float gameSpeed = 5f;
+    private float gameSpeed = 3f;
     [SerializeField]
     private float speedIncrease = 0.15f;
     [SerializeField] private TextMeshProUGUI scoreText;
@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject skillSelectionPanel;
     private bool hasShownSkillChoice = false;
-
+    private float originalGameSpeed;
 
     private void Awake()
     {
@@ -30,10 +30,22 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
+        originalGameSpeed = gameSpeed;
     }
     public float GetGameSpeed()
     {
         return gameSpeed;
+    }
+    public void SlowDownGame()
+    {
+        gameSpeed = originalGameSpeed * 0.3f;
+        Debug.Log("game speed da giam: " + gameSpeed);
+    }
+
+    public void ResetGameSpeed()
+    {
+        gameSpeed = originalGameSpeed;
+        Debug.Log("tro lai toc do game binh thuong: " + gameSpeed);
     }
     void Start()
     {
@@ -73,6 +85,7 @@ public class GameManager : MonoBehaviour
         {
             hasShownSkillChoice = true;
             ShowSkillSelection();
+
         }
     }
     public void HandleStartGame()
@@ -134,9 +147,9 @@ public class GameManager : MonoBehaviour
     public void SelectMagnetSkill() => SelectSkill(PlayerSkillController.SkillType.Magnet);
     public void SelectShieldSkill() => SelectSkill(PlayerSkillController.SkillType.Shield);
     public void SelectCoinBoostSkill() => SelectSkill(PlayerSkillController.SkillType.CoinBoost);
+    public void SelectSlowTimeSkill() => SelectSkill(PlayerSkillController.SkillType.SlowTime);
     private void ShowSkillSelection()
     {
-        Time.timeScale = 0;
         skillSelectionPanel.SetActive(true);
     }
 

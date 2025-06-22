@@ -4,8 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuUI : MonoBehaviour
 {
-    public TextMeshProUGUI goldText;
-    public TextMeshProUGUI highScoreText;
+    [SerializeField] private TextMeshProUGUI goldText;
+    [SerializeField] private TextMeshProUGUI highScoreText;
+    [SerializeField] private GameObject shopPanel;
     void Start()
     {
         int gold = PlayerPrefs.GetInt("Gold", 0);
@@ -29,8 +30,15 @@ public class MainMenuUI : MonoBehaviour
 
         Debug.Log("Data Reset");
 
-
         goldText.text = "Gold: 0";
         highScoreText.text = "Best: 0 m";
+    }
+    public void OpenShop()
+    {
+        shopPanel.SetActive(true);
+    }
+    public void CloseShop()
+    {
+        shopPanel.SetActive(false);
     }
 }
