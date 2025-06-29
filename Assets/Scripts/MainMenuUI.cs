@@ -4,9 +4,22 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuUI : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI goldText;
+    public static MainMenuUI instance;
+    [SerializeField] private TextMeshProUGUI goldTextInMenu;
+    [SerializeField] private TextMeshProUGUI goldTextInShop;
     [SerializeField] private TextMeshProUGUI highScoreText;
     [SerializeField] private GameObject shopPanel;
+    [SerializeField] private TextMeshProUGUI nameGame;
+    [SerializeField] private GameObject coinImg;
+    [SerializeField] private GameObject SelectPlayerPanel;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
     void Start()
     {
         int gold = PlayerPrefs.GetInt("Gold", 0);
@@ -14,13 +27,14 @@ public class MainMenuUI : MonoBehaviour
 
         Debug.Log("score: " + gold);
 
-        goldText.text = "Gold: " + gold.ToString();
+        goldTextInMenu.text = "" + gold.ToString();
+        goldTextInShop.text = "" + gold.ToString();
         highScoreText.text = "Best: " + Mathf.FloorToInt(highScore) + " m";
     }
     public void OnPlayGameButton()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene("GameScene");
-        GameManager.instance.HandleStartGame();
     }
 
     public void OnResetDataButton()
@@ -30,15 +44,29 @@ public class MainMenuUI : MonoBehaviour
 
         Debug.Log("Data Reset");
 
-        goldText.text = "Gold: 0";
+        goldTextInMenu.text = "0";
         highScoreText.text = "Best: 0 m";
     }
     public void OpenShop()
     {
         shopPanel.SetActive(true);
+        nameGame.text = "";
+        coinImg.SetActive(false);
     }
     public void CloseShop()
     {
         shopPanel.SetActive(false);
+        nameGame.text = "Running Man";
+        coinImg.SetActive(true);
+    }
+    public void UpdateCoinUI()
+    {
+        int coin = PlayerPrefs.GetInt("Gold", 0);
+        goldTextInMenu.text = coin.ToString();
+        goldTextInShop.text = coin.ToString();
+    }
+    public void SelectPlayer()
+    {
+        SelectPlayerPanel.SetActive(true);
     }
 }

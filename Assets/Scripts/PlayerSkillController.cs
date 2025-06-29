@@ -7,102 +7,108 @@ public class PlayerSkillController : MonoBehaviour
     [SerializeField] private float magnetRange = 3f;
     [SerializeField] private float magnetSpeed = 5f;
 
-    [SerializeField] private float skillActiveDuration = 10f; // thoi gian hieu luc
-    [SerializeField] private float skillCooldownDuration = 10f; // thoi gian hoi chieu
-
     [SerializeField] private TextMeshProUGUI skillStatusText;
 
-    private bool isSkillActive = false;
-    private bool isCooldown = false;
-    private float skillTimer = 0f;
-    private float cooldownTimer = 0f;
+    private int remainingUses;
+
     public bool isShieldOn = false;
     public bool isCoinBoost = false;
     public bool isSlowTime = false;
+    private string itemId;
+
+    void Start()
+    {
+        PlayerSkillController player = FindFirstObjectByType<PlayerSkillController>();
+        if (player != null)
+        {
+            player.skill = SkillType.None;
+        }
+        else
+        {
+            Debug.LogWarning("not find!");
+        }
+
+        if (skill != SkillType.None)
+        {
+            itemId = skill.ToString();
+            remainingUses = GetSkillUses(itemId.ToLower());
+        }
+        else
+        {
+            itemId = "None";
+            remainingUses = 0;
+        }
+        UpdateUI();
+
+    }
 
     void Update()
     {
-        // 1. hien thi mac dinh
-        if (!isSkillActive && !isCooldown)
+
+        itemId = skill.ToString();
+
+        if (skill == SkillType.None)
         {
-            skillStatusText.text = "Tap F to use";
+            remainingUses = 0;
+        }
+        else
+        {
+            remainingUses = GetSkillUses(itemId.ToLower());
         }
 
-        // 2. kich hoat bang nhan F
-        if (Input.GetKeyDown(KeyCode.F) && !isSkillActive && !isCooldown && skill != SkillType.None)
+
+        if (remainingUses > 0 && Input.GetKeyDown(KeyCode.F))
         {
-            ActivateSkill();
+            UseSkill();
         }
 
-        // 3. khi ky nang dang hoat dong
-        if (isSkillActive)
-        {
-            skillTimer -= Time.deltaTime;
-            skillStatusText.text = skill.ToString() + ": " + Mathf.CeilToInt(skillTimer) + "s";
-
-            switch (skill)
-            {
-                case SkillType.Magnet:
-                    AttractCoins();
-                    break;
-                case SkillType.Shield:
-                    ActivateShield();
-                    break;
-                case SkillType.CoinBoost:
-                    ActivateCoinBoost();
-                    break;
-                case SkillType.SlowTime:
-                    ActivateSlowTime(10);
-                    break;
-            }
-
-            if (skillTimer <= 0f)
-            {
-                DeactivateSkill();
-            }
-        }
-
-        // 4. Khi cooldown
-        if (isCooldown)
-        {
-            cooldownTimer -= Time.deltaTime;
-            skillStatusText.text = "Cooldown: " + Mathf.CeilToInt(cooldownTimer) + "s";
-
-            if (cooldownTimer <= 0f)
-            {
-                isCooldown = false;
-                skillStatusText.text = "Tap F to use";
-                Debug.Log("ky nang da san sang");
-            }
-        }
+        UpdateUI();
     }
 
 
-    void ActivateSkill()
+    void UseSkill()
     {
-        isSkillActive = true;
-        isCooldown = true;
-        skillTimer = skillActiveDuration;
-        cooldownTimer = skillCooldownDuration;
-        Debug.Log("thoi gian su dung la 10 giay");
-    }
-    public void DeactivateSkill()
-    {
-        isSkillActive = false;
+        remainingUses--;
+        SaveSkillUses(itemId, remainingUses);
 
-        if (skill == SkillType.Shield)
+        Debug.Log("da dung ky nang: " + skill + " | con lai: " + remainingUses);
+
+        switch (skill)
         {
-            isShieldOn = false;
+            case SkillType.Magnet:
+                AttractCoins();
+                break;
+            case SkillType.Shield:
+                ActivateShield();
+                break;
+            case SkillType.CoinBoost:
+                ActivateCoinBoost();
+                break;
+            case SkillType.SlowTime:
+                ActivateSlowTime();
+                break;
         }
-        else if (skill == SkillType.SlowTime)
+
+        if (remainingUses <= 0)
         {
-            GameManager.instance.ResetGameSpeed();
+            skillStatusText.text = "het ky nang";
         }
-        else if (skill == SkillType.CoinBoost)
+    }
+
+    void UpdateUI()
+    {
+        if (skill == SkillType.None)
         {
-            isCoinBoost = false;
+            skillStatusText.text = "Chua co ky nang";
         }
-        Debug.Log("da het hieu luc");
+        else if (remainingUses > 0)
+        {
+            skillStatusText.text = skill + " - Uses: " + remainingUses;
+        }
+        else
+        {
+            skillStatusText.text = "het ky nang";
+        }
     }
 
     void AttractCoins()
@@ -118,23 +124,30 @@ public class PlayerSkillController : MonoBehaviour
             }
         }
     }
-    void ActivateShield()
-    {
-        isShieldOn = true;
-    }
-    void ActivateCoinBoost()
-    {
-        isCoinBoost = true;
-    }
-    void ActivateSlowTime(float duration)
-    {
-        GameManager.instance.SlowDownGame();
-    }
+
+    void ActivateShield() => isShieldOn = true;
+    void ActivateCoinBoost() => isCoinBoost = true;
+    void ActivateSlowTime() => GameManager.instance.SlowDownGame();
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, magnetRange);
     }
+
+    // ---- Skill Use Save/Load Logic ----
+    int GetSkillUses(string itemId)
+    {
+        if (itemId.Equals("None")) return 0;
+        return PlayerPrefs.GetInt("Skill_Uses_" + itemId.ToString().ToLower(), 1); // default 1
+    }
+
+    void SaveSkillUses(string itemId, int amount)
+    {
+        PlayerPrefs.SetInt("Skill_Uses_" + itemId.ToString().ToLower(), amount);
+        PlayerPrefs.Save();
+    }
+
     public enum SkillType
     {
         None,
@@ -143,5 +156,4 @@ public class PlayerSkillController : MonoBehaviour
         CoinBoost,
         SlowTime
     }
-
 }

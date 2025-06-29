@@ -1,8 +1,6 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static PlayerSkillController;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -34,6 +32,11 @@ public class GameManager : MonoBehaviour
     }
     public float GetGameSpeed()
     {
+        float maxSpeed = 12f;
+        if (gameSpeed > maxSpeed)
+        {
+            gameSpeed = maxSpeed;
+        }
         return gameSpeed;
     }
     public void SlowDownGame()
@@ -51,15 +54,6 @@ public class GameManager : MonoBehaviour
     {
         currentCoin = 0;
         UpdateCoin();
-        PlayerSkillController player = FindFirstObjectByType<PlayerSkillController>();
-        if (player != null)
-        {
-            player.skill = SkillType.Shield;
-        }
-        else
-        {
-            Debug.LogWarning("not find!");
-        }
     }
 
     void Update()
@@ -90,7 +84,6 @@ public class GameManager : MonoBehaviour
     }
     public void HandleStartGame()
     {
-        Time.timeScale = 1;
         scoreTextObject.SetActive(true);
         coinTextObject.SetActive(true);
         gameOverMess.SetActive(false);
@@ -116,7 +109,6 @@ public class GameManager : MonoBehaviour
         gameOverMess.SetActive(true);
         backToMenuButton.SetActive(true);
         Time.timeScale = 0;
-        //StartCoroutine(ReLoadScene());
 
         int totalCoin = PlayerPrefs.GetInt("Gold", 0);
         totalCoin += currentCoin;
@@ -137,6 +129,8 @@ public class GameManager : MonoBehaviour
         if (player != null)
         {
             player.skill = newSkill;
+            int current = PlayerPrefs.GetInt("Skill_Uses_" + newSkill.ToString(), 1);
+            PlayerPrefs.SetInt("Skill_Uses_" + newSkill.ToString(), current + 1);
             Debug.Log("new skill:" + newSkill);
         }
 
@@ -151,12 +145,7 @@ public class GameManager : MonoBehaviour
     private void ShowSkillSelection()
     {
         skillSelectionPanel.SetActive(true);
-    }
-
-    private IEnumerator ReLoadScene()
-    {
-        yield return new WaitForSecondsRealtime(10f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Time.timeScale = 0;
     }
     public void LoadMenuUIScene()
     {

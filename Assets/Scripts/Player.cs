@@ -117,7 +117,7 @@ public class Player : MonoBehaviour
             if (skillCtrl != null && skillCtrl.skill == PlayerSkillController.SkillType.Shield && skillCtrl.isShieldOn)
             {
                 Debug.Log("duoc khien bao ve");
-                skillCtrl.DeactivateSkill();
+
                 return;
             }
 

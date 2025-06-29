@@ -2,13 +2,10 @@ using UnityEngine;
 
 public class Parallax : MonoBehaviour
 {
-    private Material material;
-    [SerializeField]
-    private float parallaxFactor = 0.01f;
-    private float offset;
+    private Vector2 startPos;
     void Start()
     {
-        material = GetComponent<Renderer>().material;
+        startPos = transform.position;
     }
 
     void Update()
@@ -17,8 +14,7 @@ public class Parallax : MonoBehaviour
     }
     private void ParralaxScroll()
     {
-        float speed = GameManager.instance.GetGameSpeed() * parallaxFactor;
-        offset += Time.deltaTime * speed;
-        material.SetTextureOffset("_MainTex", Vector2.right * offset);
+        float newX = Mathf.Sin(Time.time * 0.5f) * 0.5f;
+        transform.position = startPos + new Vector2(newX, 0);
     }
 }

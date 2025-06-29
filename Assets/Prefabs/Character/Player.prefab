@@ -282,6 +282,7 @@ MonoBehaviour:
   skillStatusText: {fileID: 0}
   isShieldOn: 0
   isCoinBoost: 0
+  isSlowTime: 0
 --- !u!114 &4183035138721288602
 MonoBehaviour:
   m_ObjectHideFlags: 0
