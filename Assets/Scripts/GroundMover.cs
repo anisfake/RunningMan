@@ -10,7 +10,7 @@ public class GroundMover : MonoBehaviour
     {
         transform.position += Vector3.left * GameManager.instance.GetGameSpeed() * Time.deltaTime;
 
-        float rightEdgeX = transform.position.x + GetComponent<Renderer>().bounds.size.x;
+        float rightEdgeX = transform.position.x + GetComponentInChildren<Renderer>().bounds.size.x;
 
         if (rightEdgeX < destroyX)
         {

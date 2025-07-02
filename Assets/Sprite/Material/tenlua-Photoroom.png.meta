@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      tenlua-Photoroom_0: 2383152175837038433
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

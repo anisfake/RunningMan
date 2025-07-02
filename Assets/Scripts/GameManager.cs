@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        Time.timeScale = 1;
+
         if (instance == null)
         {
             instance = this;
@@ -149,6 +151,7 @@ public class GameManager : MonoBehaviour
     }
     public void LoadMenuUIScene()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
     public void QuitGame()

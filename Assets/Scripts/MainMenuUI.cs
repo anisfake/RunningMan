@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,6 +12,9 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameGame;
     [SerializeField] private GameObject coinImg;
     [SerializeField] private GameObject SelectPlayerPanel;
+    [SerializeField] private GameObject mapSelectionPanel;
+    [SerializeField] private GameObject map;// Panel chọn map
+    [SerializeField] private MapOption[] mapOptions; // Danh sách MapOption (custom class)
 
     private void Awake()
     {
@@ -33,10 +36,52 @@ public class MainMenuUI : MonoBehaviour
     }
     public void OnPlayGameButton()
     {
-        Time.timeScale = 1;
+        gameObject.SetActive(false);
+        mapSelectionPanel.SetActive(true);
+
+
+    }
+    public void SelectMap(int mapIndex)
+    {
+        if (mapIndex < 0 || mapIndex >= mapOptions.Length)
+        {
+            Debug.LogError("Map index không hợp lệ!");
+            return;
+        }
+
+        MapOption selectedMap = mapOptions[mapIndex];
+
+        // Kiểm tra xem randomGroundPrefabs có tồn tại không
+        if (selectedMap.randomGroundPrefabs == null || selectedMap.randomGroundPrefabs.Length == 0)
+        {
+            Debug.LogError($"Map {selectedMap.mapName} không có randomGroundPrefabs!");
+            return;
+        }
+
+        // Kiểm tra background prefab
+        if (selectedMap.backgroundPrefab == null)
+        {
+            Debug.LogWarning($"Map {selectedMap.mapName} không có backgroundPrefab!");
+        }
+
+        // Kiểm tra GameData Instance
+        if (GameData.Instance == null)
+        {
+            Debug.LogError("GameData.Instance là null!");
+            return;
+        }
+
+        // Sử dụng method mới để set toàn bộ data
+        GameData.Instance.SetMapData(selectedMap);
+
+        Debug.Log($"Đã set map data cho GameData: {selectedMap.mapName}");
+        Debug.Log($"- Ground Prefabs: {selectedMap.randomGroundPrefabs.Length}");
+        Debug.Log($"- Air Obstacles: {(selectedMap.airObstacles?.Length ?? 0)}");
+        Debug.Log($"- Background: {(selectedMap.backgroundPrefab != null ? selectedMap.backgroundPrefab.name : "None")}");
+
+        map.SetActive(false);
         SceneManager.LoadScene("GameScene");
     }
-
     public void OnResetDataButton()
     {
         PlayerPrefs.DeleteAll();
@@ -69,4 +114,16 @@ public class MainMenuUI : MonoBehaviour
     {
         SelectPlayerPanel.SetActive(true);
     }
+    public void ResetUI()
+    {
+        // Tắt hết các panel không cần thiết
+        mapSelectionPanel.SetActive(false);
+        shopPanel.SetActive(false);
+        SelectPlayerPanel.SetActive(false);
+        // Hiện lại panel chính
+        this.gameObject.SetActive(true);
+
+
+    }
+
 }
